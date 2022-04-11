@@ -1,7 +1,3 @@
-
-
-
-
 import 'package:bloc/bloc.dart';
 import 'package:conditional_builder_null_safety/example/example.dart';
 import 'package:conditional_builder_null_safety/example/example.dart';
@@ -28,18 +24,23 @@ import 'modules/counter/cubit/cubit.dart';
 import 'modules/home/home_screen.dart';
 import 'modules/messenger_screen/messenger_screen.dart';
 
-
-
-Future<void> main( ) async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // بيتاكد ان كل حاجة هنا خلصت في الميثود و بعدين يفتح الابب
+
+  bool isReleasedMode = const bool.fromEnvironment('dart.vm.product');
+  if (isReleasedMode) {
+    debugPrint = (String? message, {int? wrapWidth}) => {};
+  }
 
   DioHelper.init();
   await CacheHelper.init();
 
   bool? isDark = CacheHelper.getBoolean(key: 'isDark');
   BlocOverrides.runZoned(
-        () => runApp( MyApp(isDark: isDark,)),
+    () => runApp(MyApp(
+      isDark: isDark,
+    )),
     blocObserver: MyBlocObserver(),
   );
 }
@@ -48,23 +49,24 @@ Future<void> main( ) async {
 //stateful
 
 class MyApp extends StatelessWidget {
-   const MyApp({Key? key, database, required this.isDark}) : super(key: key);
+  const MyApp({Key? key, database, required this.isDark}) : super(key: key);
 
-   final bool? isDark;
+  final bool? isDark;
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-        providers:
-        [
-          BlocProvider(
-            create: (BuildContext context)=> NewsCubit()..getBusiness(),),
-          BlocProvider(
-            create: (BuildContext context) => AppCubit()..changeAppTheme(fromShared: isDark),),
-        ],
-
+      providers: [
+        BlocProvider(
+          create: (BuildContext context) => NewsCubit()..getBusiness(),
+        ),
+        BlocProvider(
+          create: (BuildContext context) =>
+              AppCubit()..changeAppTheme(fromShared: isDark),
+        ),
+      ],
       child: BlocConsumer<AppCubit, AppStates>(
-        listener: (BuildContext context, state) {  },
+        listener: (BuildContext context, state) {},
         builder: (BuildContext context, state) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -77,7 +79,9 @@ class MyApp extends StatelessWidget {
               appBarTheme: const AppBarTheme(
                 color: Colors.white,
                 elevation: 0.0,
-                actionsIconTheme: IconThemeData(color: Colors.black,),
+                actionsIconTheme: IconThemeData(
+                  color: Colors.black,
+                ),
                 titleTextStyle: TextStyle(
                   color: Colors.black,
                 ),
@@ -108,7 +112,9 @@ class MyApp extends StatelessWidget {
               appBarTheme: AppBarTheme(
                 color: HexColor('1B2631'),
                 elevation: 0.0,
-                actionsIconTheme: const IconThemeData(color: Colors.white,),
+                actionsIconTheme: const IconThemeData(
+                  color: Colors.white,
+                ),
                 titleTextStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -132,14 +138,12 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
-            themeMode: AppCubit.get(context).isDark? ThemeMode.dark : ThemeMode.light,
+            themeMode:
+                AppCubit.get(context).isDark ? ThemeMode.dark : ThemeMode.light,
             home: const NewsLayout(),
           );
         },
       ),
     );
   }
-
 }
-
-
